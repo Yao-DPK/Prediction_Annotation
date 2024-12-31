@@ -1,0 +1,21 @@
+
+services:
+  db:
+    container_name: feedback_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: feedback_user
+      POSTGRES_PASSWORD: feedback_password
+      POSTGRES_DB: feedback_db
+      
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data_feedback
+
+volumes:
+  db-data: {}
+
+
+
