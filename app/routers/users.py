@@ -8,53 +8,85 @@ from app.core.security import hash_password
 
 router = APIRouter()
 
-@router.post("/create", response_model=UserOut)
-def create_user(user_in: UserCreate, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == user_in.email).first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
-    
-    hashed_password = hash_password(user_in.password)
-    user = User(
-        name=user_in.name,
-        email=user_in.email,
-        hashed_password=hashed_password,
-        is_admin=user_in.is_admin,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    
-    return user
+from datetime import timedelta
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from app.schemas.user import Token, UserCreate, UserOut
+from app.models.user import User
+from app.db.session import get_db
+from app.services.user_service import create_user, get_user_by_email, verify_user_password
+from app.core.security import get_current_admin_user, get_current_user
 
-@router.get("/", response_model=list[UserOut])
-def get_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return users
+router = APIRouter()
 
+@router.post("/register", response_model=UserOut)
+def register_user(user: UserCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_admin_user)):
+    db_user = get_user_by_email(user.email, db)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return create_user(user, db)
 
 @router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(user_id: int, current_user: dict = Depends(get_current_admin_user), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
-
-# update user
-@router.put("/{user_id}", response_model=UserOut)
-def update_user(user_id: int, user_in: UserCreate, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#update user
+@router.put("/", response_model=UserOut)
+def update_user(user: UserCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    db_user = db.query(User).filter(User.id == user.email).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if db_user.email != current_user.email:
+        raise HTTPException(status_code=403, detail="Forbidden")
     
-    user.name = user_in.name
-    user.email = user_in.email
-    user.is_admin = user_in.is_admin
-    if user_in.password:
-        user.hashed_password = hash_password(user_in.password)
+    if user.name:
+        db_user.name = user.name
+    if user.email:
+        db_user.email = user.email
+    if user.password:
+        db_user.hashed_password = hash_password(user.password)
+    if user.is_admin:
+        db_user.role = user.is_admin
     
     db.commit()
-    db.refresh(user)
-    
-    return user
+    db.refresh(db_user)
+    return db_user
 
+#update user admin
+@router.put("/{user_id}", response_model=UserOut)
+def update_user_admin(user: UserCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_admin_user)):
+    db_user = db.query(User).filter(User.id == user.email).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if db_user.email != current_user.email:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    if user.is_admin:
+        db_user.is_admin = user.is_admin
+    if user.password:
+        db_user.hashed_password = hash_password(user.password)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+#delete user
+@router.delete("/{user_id}", response_model=UserOut)
+def delete_user(user_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_admin_user)):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if db_user.email != current_user.email:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    db.delete(db_user)
+    db.commit()
+    return db_user
+
+
+@router.get("/protected-data", response_model=UserCreate)
+def protected_data(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == current_user.email).first()
+    return {"message": f"Welcome {user.name}, you have access!"}

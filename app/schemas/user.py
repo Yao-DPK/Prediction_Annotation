@@ -3,7 +3,7 @@ from typing import Optional
 
 class UserBase(BaseModel):
     name: str
-    email: EmailStr
+    email: str
     is_admin: Optional[bool] = False
 
 class UserCreate(UserBase):
@@ -22,3 +22,7 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class TokenData(BaseModel):
+    email: str or None = None
+    is_admin: bool or None = None

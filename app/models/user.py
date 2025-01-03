@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
-from app.db.session import Base
+from app.db.base import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -11,4 +11,4 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_admin = Column(Boolean, default=False)  # True if the user is an administrator
 
-    annotations = relationship("Annotation", back_populates="users")
+    annotations = relationship("Annotation", back_populates="user")

@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # Database configuration
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://feedback_user:feedback_password@localhost/feedback_db")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://feedback_user:feedback_password@localhost:5433/feedback_db")
     
     # JWT Configuration
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your_secret_key")  # Use a secure random string in production
