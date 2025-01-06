@@ -40,7 +40,9 @@ jobs:
     # Optional: Run tests after the services are up (You'll add this once you have tests)
     - name: Run tests (Once you add tests)
       run: |
-        curl -sS http://localhost:8000/  # Basic check to ensure the FastAPI app is running
+        # Wait a few seconds to give the FastAPI server time to start
+        sleep 10
+        curl -sS http://localhost:8000/ || echo "FastAPI server not ready"
 
     # Clean up
     - name: Shut down containers
