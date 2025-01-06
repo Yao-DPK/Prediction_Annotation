@@ -29,7 +29,7 @@ jobs:
 
      # Ensure you're in the root directory
     - name: Navigate to root directory
-      run: cd /home/runner/work/tb-org-backend/tb-org-backend
+      run: cd /home/runner/work/_temp/
 
     # Step: Build and run Docker Compose (Build all services in the docker-compose.yml file)
     - name: Build and run Docker Compose
