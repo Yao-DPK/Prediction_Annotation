@@ -18,9 +18,10 @@ services:
     container_name: feedback_backend
     build: .
     ports:
-     - "8000:80"
+     - "8000:8000"
     environment:
       DATABASE_URL: "postgresql://feedback_user:feedback_password@db:5432/feedback_db"
+      IN_DOCKER: "true" 
     volumes:
      - .:/app
     depends_on:

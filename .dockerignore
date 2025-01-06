@@ -1,0 +1,15 @@
+# Ignore Python-related files (for Python apps)
+*.pyc
+__pycache__
+
+# Ignore development config files
+.env
+*.local
+
+# Ignore Dockerfile and docker-compose.yml
+Dockerfile
+docker-compose.yml
+
+# Ignore logs and temporary files
+*.log
+tmp/
