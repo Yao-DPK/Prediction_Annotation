@@ -1,0 +1,38 @@
+name: Feedback CI/CD Pipeline project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Define the build and test job
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Step: Set up Docker Buildx
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    # Step: Build and run Docker Compose (Build all services in the docker-compose.yml file)
+    - name: Build and run Docker Compose
+      run: |
+        docker-compose -f docker-compose.yml build
+        docker-compose up -d
+        
+    # Optional: Run tests after the services are up (You'll add this once you have tests)
+    - name: Run tests (Once you add tests)
+      run: |
+        curl -sS http://localhost:8000/  # Basic check to ensure the FastAPI app is running
+
+    # Clean up
+    - name: Shut down containers
+      run: |
+        docker-compose down

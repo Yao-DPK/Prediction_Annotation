@@ -14,6 +14,18 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data_feedback
 
+  web:
+    container_name: feedback_backend
+    build: .
+    ports:
+     - "8000:80"
+    environment:
+      DATABASE_URL: "postgresql://feedback_user:feedback_password@db:5432/feedback_db"
+    volumes:
+     - .:/app
+    depends_on:
+      - db
+
 volumes:
   db-data: {}
 
