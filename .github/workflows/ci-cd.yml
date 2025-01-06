@@ -21,6 +21,10 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+     # Ensure you're in the root directory
+    - name: Navigate to root directory
+      run: cd /home/runner/work/tb-org-backend/tb-org-backend
+
     # Step: Build and run Docker Compose (Build all services in the docker-compose.yml file)
     - name: Build and run Docker Compose
       run: |
