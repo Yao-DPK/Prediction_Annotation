@@ -17,6 +17,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+      # Debug: Print the directory structure
+    - name: List directory structure
+      run: |
+        echo "Listing the directory structure..."
+        ls -R
+
     # Step: Set up Docker Buildx
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
