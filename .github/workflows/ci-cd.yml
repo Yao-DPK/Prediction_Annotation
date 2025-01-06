@@ -24,8 +24,8 @@ jobs:
     # Step: Build and run Docker Compose (Build all services in the docker-compose.yml file)
     - name: Build and run Docker Compose
       run: |
-        docker-compose -f docker-compose.yml build
-        docker-compose up -d
+        docker compose -f docker-compose.yml build
+        docker compose up -d
         
     # Optional: Run tests after the services are up (You'll add this once you have tests)
     - name: Run tests (Once you add tests)
