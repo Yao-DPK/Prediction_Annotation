@@ -47,4 +47,4 @@ jobs:
     # Clean up
     - name: Shut down containers
       run: |
-        docker-compose down
+        docker compose down
